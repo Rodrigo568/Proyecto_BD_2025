@@ -1,0 +1,68 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# VSCode config
+.vscode/
+
+# Python & FastAPI logs and artifacts
+*.log
+*.sqlite3
+*.db
+*.pid
+
+# Environment variables
+.env
+.env.*
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+coverage.xml
+*.cover
+.cache
+
+# MyPy type checker
+.mypy_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Docker
+**/Dockerfile
+**/docker-compose.yml
+**/.dockerignore
+
+# System or editor backups
+*.swp
+*.bak
+*~
+*.tmp
+
+# Jupyter Notebook checkpoints (in case you use them)
+.ipynb_checkpoints/
+
+# Ignore idea files (if you use JetBrains IDEs too)
+.idea/
+
+# Node (if you add frontend later)
+node_modules/
+
+# __init__.pyc generated accidentally
+**/__init__.pyc
