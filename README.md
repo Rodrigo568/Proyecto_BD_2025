@@ -9,8 +9,7 @@ Este proyecto forma parte del curso de Base de Datos 1 del primer semestre del 2
 
 [![GitHub](https://img.shields.io/badge/GitHub-Rodrigo%20Doldan-blue.svg)](https://github.com/Rodrigo568)  
 [![GitHub](https://img.shields.io/badge/GitHub-Valentín%20Curbelo-red.svg)](https://github.com/ValentinCurbelo)  
-[![GitHub](https://img.shields.io/badge/GitHub-Agustín%20Negreira-green.svg)](https://github.com/BMorat)  
-[![GitHub](https://img.shields.io/badge/GitHub-Brian%20Morat-black.svg)](https://github.com/Bmorat)
+[![GitHub](https://img.shields.io/badge/GitHub-Brian%20Morat-green.svg)](https://github.com/Bmorat)
 
 ---
 
