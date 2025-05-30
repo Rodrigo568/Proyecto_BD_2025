@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,15 +13,31 @@ import {
 } from "@/components/ui/table"
 import { Plus, Search, Edit, MapPin, Phone, Mail, User, Settings } from "lucide-react"
 import api from "@/lib/api"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+
+interface Cliente {
+  id: number
+  nombre: string
+  direccion?: string
+  telefono?: string
+  correo?: string
+}
 
 export default function Clientes() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [clientes, setClientes] = useState<any[]>([])
+  const [clientes, setClientes] = useState<Cliente[]>([])
+  const [open, setOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [form, setForm] = useState({nombre: "", direccion: "", telefono: "", correo: "" })
+  const [editId, setEditId] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
+  const nombreRef = useRef<HTMLInputElement>(null)
 
+
+  // cargar clientes al montar el componente 
   useEffect(() => {
     api.get("/clientes")
       .then(response => {
-        console.log("Clientes obtenidos:", response.data)
         setClientes(response.data)
       })
       .catch(error => {
@@ -29,11 +45,67 @@ export default function Clientes() {
       })
   }, [])
 
+  // Filtrar clientes segegun la busqueda
   const filteredCustomers = clientes.filter(cliente =>
     cliente.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cliente.direccion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cliente.correo?.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const handleOpen = () => {
+    setForm({ nombre: "", direccion: "", telefono: "", correo: "" })
+    setOpen(true)
+    setTimeout(() => nombreRef.current?.focus(), 100)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  // crear cliente desde el form
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const res = await api.post("/clientes", form)
+      setClientes(prev => [...prev, res.data])
+      setOpen(false)
+    } catch (err) {
+      alert("Error al crear cliente")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEditOpen = (cliente: Cliente) => {
+    setForm({
+      nombre: cliente.nombre,
+      direccion: cliente.direccion || "",
+      telefono: cliente.telefono || "",
+      correo: cliente.correo || "",
+    })
+    setEditId(cliente.id)
+    setEditOpen(true)
+    setTimeout(() => nombreRef.current?.focus(), 100)
+  }
+
+  // editar cliente desde el form
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (editId == null) return
+    setLoading(true)
+    try {
+      const res = await api.put(`/clientes/${editId}`, form)
+      setClientes(prev =>
+        prev.map(c => (c.id === editId ? res.data : c))
+      )
+      setEditOpen(false)
+    } catch (err) {
+      alert("Error al editar cliente")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -42,11 +114,109 @@ export default function Clientes() {
           <h1 className="text-3xl font-bold text-coffee-800">Gestión de Clientes</h1>
           <p className="text-coffee-600 mt-1">Administra la información de tus clientes</p>
         </div>
-        <Button className="bg-coffee-600 hover:bg-coffee-700 text-white">
+        <Button className="bg-coffee-600 hover:bg-coffee-700 text-white" onClick={handleOpen}>
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Cliente
         </Button>
       </div>
+
+      {/* Modal para nuevo cliente */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuevo Cliente</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              ref={nombreRef}
+              name="nombre"
+              placeholder="Nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="direccion"
+              placeholder="Dirección"
+              value={form.direccion}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="telefono"
+              placeholder="Teléfono"
+              value={form.telefono}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="correo"
+              placeholder="Correo"
+              value={form.correo}
+              onChange={handleChange}
+              required
+              type="email"
+            />
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={loading} className="bg-coffee-600 text-white">
+                {loading ? "Guardando..." : "Crear"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para editar cliente */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Cliente</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <Input
+              ref={nombreRef}
+              name="nombre"
+              placeholder="Nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="direccion"
+              placeholder="Dirección"
+              value={form.direccion}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="telefono"
+              placeholder="Teléfono"
+              value={form.telefono}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="correo"
+              placeholder="Correo"
+              value={form.correo}
+              onChange={handleChange}
+              required
+              type="email"
+            />
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={loading} className="bg-coffee-600 text-white">
+                {loading ? "Guardando..." : "Guardar Cambios"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Buscador */}
       <Card className="bg-white border-coffee-200">
@@ -87,12 +257,6 @@ export default function Clientes() {
                       <User className="h-4 w-4 mr-2 text-coffee-500" />
                       <div>
                         <div className="font-medium text-coffee-800">{cliente.nombre}</div>
-                        {cliente.maquinas && (
-                          <div className="text-xs text-coffee-500 mt-1">
-                            <Settings className="h-3 w-3 inline mr-1" />
-                            {cliente.maquinas} máquinas
-                          </div>
-                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -123,6 +287,7 @@ export default function Clientes() {
                       variant="outline" 
                       size="sm"
                       className="border-coffee-300 text-coffee-700 hover:bg-coffee-50"
+                      onClick={() => handleEditOpen(cliente)}
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
