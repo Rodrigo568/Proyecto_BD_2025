@@ -142,7 +142,7 @@ export function AppSidebar() {
       
       <SidebarFooter className="p-4 border-t border-coffee-200">
         <div className="text-xs text-coffee-600 text-center">
-          © 2024 Cafés Marloy
+          © 2025 Cafés Marloy
         </div>
       </SidebarFooter>
     </Sidebar>

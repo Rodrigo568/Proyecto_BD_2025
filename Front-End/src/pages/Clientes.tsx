@@ -1,5 +1,4 @@
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,53 +11,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Plus, Search, Edit, MapPin, Phone, Mail } from "lucide-react"
-
-const mockClientes = [
-  {
-    id: 1,
-    nombre: "Oficinas Central",
-    direccion: "Av. Libertador 1234, CABA",
-    telefono: "+54 11 4567-8901",
-    email: "contacto@oficinascentral.com",
-    maquinas: 3,
-    estado: "Activo"
-  },
-  {
-    id: 2,
-    nombre: "Hospital Regional",
-    direccion: "Calle Salud 567, Buenos Aires",
-    telefono: "+54 11 4567-8902",
-    email: "admin@hospitalregional.com",
-    maquinas: 5,
-    estado: "Activo"
-  },
-  {
-    id: 3,
-    nombre: "Universidad Norte",
-    direccion: "Campus Universitario 789, Córdoba",
-    telefono: "+54 351 456-7890",
-    email: "servicios@uninorte.edu.ar",
-    maquinas: 8,
-    estado: "Activo"
-  },
-  {
-    id: 4,
-    nombre: "Hotel Plaza",
-    direccion: "Plaza Mayor 123, Mendoza",
-    telefono: "+54 261 456-7890",
-    email: "gerencia@hotelplaza.com",
-    maquinas: 2,
-    estado: "Inactivo"
-  }
-]
+import { Plus, Search, Edit, MapPin, Phone, Mail, User, Settings } from "lucide-react"
+import api from "@/lib/api"
 
 export default function Clientes() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [clientes, setClientes] = useState<any[]>([])
 
-  const filteredClientes = mockClientes.filter(cliente =>
-    cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.direccion.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    api.get("/clientes")
+      .then(response => {
+        console.log("Clientes obtenidos:", response.data)
+        setClientes(response.data)
+      })
+      .catch(error => {
+        console.error("Error al obtener los clientes:", error)
+      })
+  }, [])
+
+  const filteredCustomers = clientes.filter(cliente =>
+    cliente.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cliente.direccion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cliente.correo?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -80,7 +54,7 @@ export default function Clientes() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-coffee-400 h-4 w-4" />
             <Input
-              placeholder="Buscar clientes por nombre o dirección..."
+              placeholder="Buscar clientes por nombre, dirección o correo..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 border-coffee-200 focus:border-coffee-400"
@@ -99,52 +73,51 @@ export default function Clientes() {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-coffee-700">Cliente</TableHead>
-                <TableHead className="text-coffee-700">Contacto</TableHead>
-                <TableHead className="text-coffee-700">Máquinas</TableHead>
-                <TableHead className="text-coffee-700">Estado</TableHead>
+                <TableHead className="text-coffee-700">Dirección</TableHead>
+                <TableHead className="text-coffee-700">Teléfono</TableHead>
+                <TableHead className="text-coffee-700">Correo</TableHead>
                 <TableHead className="text-coffee-700">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredClientes.map((cliente) => (
+              {filteredCustomers.map((cliente) => (
                 <TableRow key={cliente.id} className="hover:bg-coffee-50">
                   <TableCell>
-                    <div>
-                      <div className="font-medium text-coffee-800">{cliente.nombre}</div>
-                      <div className="flex items-center text-sm text-coffee-600 mt-1">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {cliente.direccion}
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-2 text-coffee-500" />
+                      <div>
+                        <div className="font-medium text-coffee-800">{cliente.nombre}</div>
+                        {cliente.maquinas && (
+                          <div className="text-xs text-coffee-500 mt-1">
+                            <Settings className="h-3 w-3 inline mr-1" />
+                            {cliente.maquinas} máquinas
+                          </div>
+                        )}
                       </div>
                     </div>
                   </TableCell>
+                  
                   <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm text-coffee-600">
-                        <Phone className="h-3 w-3 mr-2" />
-                        {cliente.telefono}
-                      </div>
-                      <div className="flex items-center text-sm text-coffee-600">
-                        <Mail className="h-3 w-3 mr-2" />
-                        {cliente.email}
-                      </div>
+                    <div className="flex items-center text-sm text-coffee-600">
+                      <MapPin className="h-3 w-3 mr-2 flex-shrink-0" />
+                      <span>{cliente.direccion || 'Sin dirección'}</span>
                     </div>
                   </TableCell>
+
                   <TableCell>
-                    <Badge variant="outline" className="border-coffee-300 text-coffee-700">
-                      {cliente.maquinas} máquinas
-                    </Badge>
+                    <div className="flex items-center text-sm text-coffee-600">
+                      <Phone className="h-3 w-3 mr-2 flex-shrink-0" />
+                      <span>{cliente.telefono || 'Sin teléfono'}</span>
+                    </div>
                   </TableCell>
+
                   <TableCell>
-                    <Badge 
-                      variant={cliente.estado === "Activo" ? "default" : "secondary"}
-                      className={cliente.estado === "Activo" 
-                        ? "bg-green-100 text-green-800 border-green-300" 
-                        : "bg-gray-100 text-gray-800 border-gray-300"
-                      }
-                    >
-                      {cliente.estado}
-                    </Badge>
+                    <div className="flex items-center text-sm text-coffee-600">
+                      <Mail className="h-3 w-3 mr-2 flex-shrink-0" />
+                      <span>{cliente.correo || 'Sin correo'}</span>
+                    </div>
                   </TableCell>
+
                   <TableCell>
                     <Button 
                       variant="outline" 
@@ -159,6 +132,16 @@ export default function Clientes() {
               ))}
             </TableBody>
           </Table>
+
+          {filteredCustomers.length === 0 && (
+            <div className="text-center py-8 text-coffee-500">
+              <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No se encontraron clientes</p>
+              {searchTerm && (
+                <p className="text-sm mt-2">Intenta con otros términos de búsqueda</p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
