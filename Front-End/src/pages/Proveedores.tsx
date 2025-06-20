@@ -1,9 +1,7 @@
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { 
   Table,
   TableBody,
@@ -12,76 +10,71 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Plus, Search, Edit, Truck, Phone, Mail, Package } from "lucide-react"
-
-const mockProveedores = [
-  {
-    id: 1,
-    nombre: "Café del Valle S.A.",
-    contacto: "Roberto Martínez",
-    telefono: "+54 11 4321-5678",
-    email: "ventas@cafedelvalle.com",
-    direccion: "Av. Industria 456, Buenos Aires",
-    insumosPrincipales: ["Café Premium", "Café Descafeinado"],
-    estado: "Activo",
-    ultimaCompra: "2024-01-20"
-  },
-  {
-    id: 2,
-    nombre: "Lácteos Buenos Aires",
-    contacto: "María González",
-    telefono: "+54 11 4567-1234",
-    email: "comercial@lacteosba.com",
-    direccion: "Ruta 5 Km 25, La Plata",
-    insumosPrincipales: ["Leche en Polvo", "Crema en Polvo"],
-    estado: "Activo",
-    ultimaCompra: "2024-01-18"
-  },
-  {
-    id: 3,
-    nombre: "Azucarera Central",
-    contacto: "Carlos Rodríguez",
-    telefono: "+54 341 456-7890",
-    email: "info@azucareracentral.com",
-    direccion: "Parque Industrial Norte, Rosario",
-    insumosPrincipales: ["Azúcar Refinada", "Edulcorante"],
-    estado: "Activo",
-    ultimaCompra: "2024-01-15"
-  },
-  {
-    id: 4,
-    nombre: "Chocolates del Sur",
-    contacto: "Ana Pérez",
-    telefono: "+54 261 789-0123",
-    email: "ventas@chocolatesdelsur.com",
-    direccion: "Zona Industrial Este, Mendoza",
-    insumosPrincipales: ["Chocolate en Polvo", "Cacao"],
-    estado: "Activo",
-    ultimaCompra: "2024-01-22"
-  },
-  {
-    id: 5,
-    nombre: "Especias Aromáticas",
-    contacto: "Luis Torres",
-    telefono: "+54 351 234-5678",
-    email: "contacto@especiasaromaticas.com",
-    direccion: "Barrio Industrial, Córdoba",
-    insumosPrincipales: ["Canela Molida", "Vainilla"],
-    estado: "Inactivo",
-    ultimaCompra: "2023-12-10"
-  }
-]
+import { Plus, Search, Edit, Truck } from "lucide-react"
+import api from "@/lib/api"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 export default function Proveedores() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [proveedores, setProveedores] = useState<{ id_proveedor: number, nombre: string }[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [nuevoNombre, setNuevoNombre] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [editProveedor, setEditProveedor] = useState<{ id_proveedor: number, nombre: string } | null>(null)
 
-  const filteredProveedores = mockProveedores.filter(proveedor =>
-    proveedor.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    proveedor.contacto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    proveedor.insumosPrincipales.some(insumo => 
-      insumo.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+  useEffect(() => {
+    api.get('/proveedores')
+      .then(response => {
+        setProveedores(response.data)
+      })
+      .catch(error => {
+        console.error("Error fetching proveedores:", error)
+        setProveedores([])
+      })
+  }, [])
+
+  const filteredProveedores = proveedores.filter(proveedor =>
+    proveedor.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const handleNuevoProveedor = async () => {
+    if (!nuevoNombre.trim()) return
+    setLoading(true)
+    try {
+      if (editProveedor) {
+        // Editar proveedor existente
+        const response = await api.put(`/proveedores/${editProveedor.id_proveedor}`, { nombre: nuevoNombre })
+        setProveedores(prev =>
+          prev.map(p =>
+            p.id_proveedor === editProveedor.id_proveedor ? response.data : p
+          )
+        )
+      } else {
+        // Crear nuevo proveedor
+        const response = await api.post('/proveedores', { nombre: nuevoNombre })
+        setProveedores(prev => [...prev, response.data])
+      }
+      setModalOpen(false)
+      setNuevoNombre("")
+      setEditProveedor(null)
+    } catch (error) {
+      console.error("Error guardando proveedor:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEditarClick = (proveedor: { id_proveedor: number, nombre: string }) => {
+    setEditProveedor(proveedor)
+    setNuevoNombre(proveedor.nombre)
+    setModalOpen(true)
+  }
+
+  const handleModalClose = () => {
+    setModalOpen(false)
+    setNuevoNombre("")
+    setEditProveedor(null)
+  }
 
   return (
     <div className="space-y-6">
@@ -90,7 +83,14 @@ export default function Proveedores() {
           <h1 className="text-3xl font-bold text-coffee-800">Gestión de Proveedores</h1>
           <p className="text-coffee-600 mt-1">Administra tus proveedores de insumos</p>
         </div>
-        <Button className="bg-coffee-600 hover:bg-coffee-700 text-white">
+        <Button
+          className="bg-coffee-600 hover:bg-coffee-700 text-white"
+          onClick={() => {
+            setEditProveedor(null)
+            setNuevoNombre("")
+            setModalOpen(true)
+          }}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Proveedor
         </Button>
@@ -102,7 +102,7 @@ export default function Proveedores() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-coffee-400 h-4 w-4" />
             <Input
-              placeholder="Buscar proveedores por nombre, contacto o insumos..."
+              placeholder="Buscar proveedores por nombre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 border-coffee-200 focus:border-coffee-400"
@@ -120,67 +120,19 @@ export default function Proveedores() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="text-coffee-700">ID</TableHead>
                 <TableHead className="text-coffee-700">Proveedor</TableHead>
-                <TableHead className="text-coffee-700">Contacto</TableHead>
-                <TableHead className="text-coffee-700">Insumos Principales</TableHead>
-                <TableHead className="text-coffee-700">Estado</TableHead>
-                <TableHead className="text-coffee-700">Última Compra</TableHead>
                 <TableHead className="text-coffee-700">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredProveedores.map((proveedor) => (
-                <TableRow key={proveedor.id} className="hover:bg-coffee-50">
+                <TableRow key={proveedor.id_proveedor} className="hover:bg-coffee-50">
+                  <TableCell>{proveedor.id_proveedor}</TableCell>
                   <TableCell>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Truck className="h-4 w-4 text-coffee-600" />
-                        <span className="font-medium text-coffee-800">{proveedor.nombre}</span>
-                      </div>
-                      <div className="text-sm text-coffee-600 mt-1">{proveedor.direccion}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium text-coffee-800">{proveedor.contacto}</div>
-                      <div className="flex items-center text-sm text-coffee-600">
-                        <Phone className="h-3 w-3 mr-2" />
-                        {proveedor.telefono}
-                      </div>
-                      <div className="flex items-center text-sm text-coffee-600">
-                        <Mail className="h-3 w-3 mr-2" />
-                        {proveedor.email}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      {proveedor.insumosPrincipales.map((insumo, index) => (
-                        <Badge 
-                          key={index}
-                          variant="outline" 
-                          className="border-coffee-300 text-coffee-700 mr-1"
-                        >
-                          <Package className="h-3 w-3 mr-1" />
-                          {insumo}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      variant={proveedor.estado === "Activo" ? "default" : "secondary"}
-                      className={proveedor.estado === "Activo" 
-                        ? "bg-green-100 text-green-800 border-green-300" 
-                        : "bg-gray-100 text-gray-800 border-gray-300"
-                      }
-                    >
-                      {proveedor.estado}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-coffee-700">
-                      {new Date(proveedor.ultimaCompra).toLocaleDateString('es-AR')}
+                    <div className="flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-coffee-600" />
+                      <span className="font-medium text-coffee-800">{proveedor.nombre}</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -188,6 +140,7 @@ export default function Proveedores() {
                       variant="outline" 
                       size="sm"
                       className="border-coffee-300 text-coffee-700 hover:bg-coffee-50"
+                      onClick={() => handleEditarClick(proveedor)}
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
@@ -199,6 +152,41 @@ export default function Proveedores() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal para nuevo proveedor */}
+      <Dialog open={modalOpen} onOpenChange={handleModalClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editProveedor ? "Editar Proveedor" : "Nuevo Proveedor"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Nombre del proveedor"
+              value={nuevoNombre}
+              onChange={e => setNuevoNombre(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleNuevoProveedor}
+              disabled={loading || !nuevoNombre.trim()}
+              className="bg-coffee-600 hover:bg-coffee-700 text-white"
+            >
+              {loading ? "Guardando..." : "Guardar"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleModalClose}
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

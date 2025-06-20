@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import clientes
+from routers import clientes, proveedores
 
 app = FastAPI()
 
@@ -14,6 +14,7 @@ app.add_middleware(
 )
 
 app.include_router(clientes.router, prefix="/api/clientes")
+app.include_router(proveedores.router, prefix="/api/proveedores")
 
 @app.get("/")
 def read_root():
