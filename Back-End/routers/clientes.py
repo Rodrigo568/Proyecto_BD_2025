@@ -14,7 +14,7 @@ def listar_clientes():
 
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, nombre, direccion, telefono, correo FROM clientes")
+        cursor.execute("SELECT id_Cliente AS id, nombre, direccion, telefono, correo FROM clientes")
         resultados = cursor.fetchall()
         return resultados
     except Exception as e:
