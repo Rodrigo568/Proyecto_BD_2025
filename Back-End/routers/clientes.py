@@ -60,7 +60,7 @@ def actualizar_cliente(id: int, cliente: ClienteBase):
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE clientes SET nombre=%s, direccion=%s, telefono=%s, correo=%s WHERE id=%s",
+            "UPDATE clientes SET nombre=%s, direccion=%s, telefono=%s, correo=%s WHERE id_Cliente=%s",
             (cliente.nombre, cliente.direccion, cliente.telefono, cliente.correo, id)
         )
         conn.commit()
