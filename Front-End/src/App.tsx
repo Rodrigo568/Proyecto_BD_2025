@@ -3,10 +3,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
 import Maquinas from "./pages/Maquinas";
@@ -41,20 +45,59 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<AdminLayout><Dashboard /></AdminLayout>} />
-          <Route path="/clientes" element={<AdminLayout><Clientes /></AdminLayout>} />
-          <Route path="/maquinas" element={<AdminLayout><Maquinas /></AdminLayout>} />
-          <Route path="/insumos" element={<AdminLayout><Insumos /></AdminLayout>} />
-          <Route path="/proveedores" element={<AdminLayout><Proveedores /></AdminLayout>} />
-          <Route path="/tecnicos" element={<AdminLayout><Tecnicos /></AdminLayout>} />
-          <Route path="/mantenimientos" element={<AdminLayout><Mantenimientos /></AdminLayout>} />
-          <Route path="/reportes" element={<AdminLayout><Reportes /></AdminLayout>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Protected routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <AdminLayout><Dashboard /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/clientes" element={
+              <ProtectedRoute>
+                <AdminLayout><Clientes /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/maquinas" element={
+              <ProtectedRoute>
+                <AdminLayout><Maquinas /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/insumos" element={
+              <ProtectedRoute>
+                <AdminLayout><Insumos /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/proveedores" element={
+              <ProtectedRoute>
+                <AdminLayout><Proveedores /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/tecnicos" element={
+              <ProtectedRoute adminOnly>
+                <AdminLayout><Tecnicos /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/mantenimientos" element={
+              <ProtectedRoute adminOnly>
+                <AdminLayout><Mantenimientos /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/reportes" element={
+              <ProtectedRoute adminOnly>
+                <AdminLayout><Reportes /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
