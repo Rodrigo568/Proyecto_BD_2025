@@ -14,7 +14,7 @@ def listar_clientes():
 
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id_Cliente AS id, nombre, direccion, telefono, correo FROM clientes")
+        cursor.execute("SELECT id_cliente AS id, nombre, direccion, telefono, correo FROM clientes")
         resultados = cursor.fetchall()
         return resultados
     except Exception as e:
@@ -60,7 +60,7 @@ def actualizar_cliente(id: int, cliente: ClienteBase):
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE clientes SET nombre=%s, direccion=%s, telefono=%s, correo=%s WHERE id_Cliente=%s",
+            "UPDATE clientes SET nombre=%s, direccion=%s, telefono=%s, correo=%s WHERE id_cliente=%s",
             (cliente.nombre, cliente.direccion, cliente.telefono, cliente.correo, id)
         )
         conn.commit()
