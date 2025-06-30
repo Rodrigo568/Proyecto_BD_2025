@@ -1,4 +1,3 @@
-
 import { 
   Coffee,
   Users,
@@ -29,6 +28,7 @@ import {
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
+import logo from '@/assets/Marloy.png' 
 
 const menuItems = [
   {
@@ -89,20 +89,24 @@ export function AppSidebar() {
     logout()
     navigate('/login')
   }
+
   return (
     <Sidebar className="border-r border-coffee-200">
       <SidebarHeader className="p-6 border-b border-coffee-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-coffee-600 rounded-lg flex items-center justify-center">
-            <Coffee className="h-6 w-6 text-white" />
+          <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center transition-transform duration-300 hover:scale-105">
+            <img 
+              src={logo} 
+              alt="Logo Cafés Marloy" 
+              className="h-10 w-10 object-contain" 
+            />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-coffee-800">Cafés Marloy</h2>
             <p className="text-sm text-coffee-600">Sistema Administrativo</p>
           </div>
         </div>
-        
-        {/* Back to Home button */}
+
         <div className="mt-4">
           <Link to="/">
             <SidebarMenuButton className="w-full hover:bg-coffee-100 hover:text-coffee-800">
@@ -112,7 +116,7 @@ export function AppSidebar() {
           </Link>
         </div>
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-coffee-700 font-medium">Gestión Principal</SidebarGroupLabel>
@@ -150,9 +154,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
+
       <SidebarFooter className="p-4 border-t border-coffee-200 space-y-3">
-        {/* User Info */}
         <div className="flex items-center space-x-3 p-2 bg-coffee-50 rounded-md">
           <div className="bg-coffee-600 p-2 rounded-full">
             <User className="h-4 w-4 text-white" />
@@ -167,8 +170,7 @@ export function AppSidebar() {
             </p>
           </div>
         </div>
-        
-        {/* Logout Button */}
+
         <Button
           onClick={handleLogout}
           variant="outline"
@@ -178,7 +180,7 @@ export function AppSidebar() {
           <LogOut className="h-4 w-4 mr-2" />
           Cerrar Sesión
         </Button>
-        
+
         <div className="text-xs text-coffee-600 text-center">
           © 2025 Cafés Marloy
         </div>
