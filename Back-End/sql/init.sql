@@ -20,8 +20,10 @@ CREATE TABLE clientes (
 CREATE TABLE maquinas (
     id_maquina INTEGER PRIMARY KEY AUTO_INCREMENT,
     modelo VARCHAR(50),
-    ubicacion VARCHAR(200),
-    costoAlquiler INTEGER
+    id_cliente INTEGER,
+    ubicacion_cliente VARCHAR(200),
+    costo_alquiler_mensual INTEGER,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
 );
 
 CREATE TABLE proveedores (
