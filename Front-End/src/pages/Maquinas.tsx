@@ -12,10 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Plus, Search, Edit, Coffee, MapPin, DollarSign } from "lucide-react"
+import { Plus, Search, Edit, Coffee, MapPin, DollarSign, Lock } from "lucide-react"
 import api from "@/lib/api"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAuth } from "@/contexts/AuthContext"
 
 interface Maquina {
   id_maquina: number
@@ -48,6 +49,7 @@ export default function Maquinas() {
   const [editId, setEditId] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const modeloRef = useRef<HTMLInputElement>(null)
+  const { isAdmin } = useAuth()
 
   // Cargar maquinas y clientes al montar el componente
   useEffect(() => {
@@ -156,12 +158,21 @@ export default function Maquinas() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-coffee-800">Gestión de Máquinas</h1>
-          <p className="text-coffee-600 mt-1">Administra las máquinas expendedoras</p>
+          <p className="text-coffee-600 mt-1">
+            {isAdmin ? 'Administra las máquinas expendedoras' : 'Visualiza las máquinas expendedoras'}
+          </p>
         </div>
-        <Button className="bg-coffee-600 hover:bg-coffee-700 text-white" onClick={handleOpen}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Máquina
-        </Button>
+        {isAdmin ? (
+          <Button className="bg-coffee-600 hover:bg-coffee-700 text-white" onClick={handleOpen}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Máquina
+          </Button>
+        ) : (
+          <div className="flex items-center text-coffee-600 bg-coffee-50 px-3 py-2 rounded-md">
+            <Lock className="h-4 w-4 mr-2" />
+            Solo lectura
+          </div>
+        )}
       </div>
 
       {/* Modal para nueva máquina */}
@@ -328,15 +339,22 @@ export default function Maquinas() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-coffee-300 text-coffee-700 hover:bg-coffee-50"
-                      onClick={() => handleEditOpen(maquina)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Editar
-                    </Button>
+                    {isAdmin ? (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="border-coffee-300 text-coffee-700 hover:bg-coffee-50"
+                        onClick={() => handleEditOpen(maquina)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Editar
+                      </Button>
+                    ) : (
+                      <div className="flex items-center text-coffee-400 text-sm">
+                        <Lock className="h-3 w-3 mr-1" />
+                        Sin permisos
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
