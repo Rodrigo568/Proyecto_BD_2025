@@ -1,15 +1,10 @@
 import { 
   Coffee,
   Users,
-  Cog,
   Package,
   Truck,
   Wrench,
-  BarChart3,
-  Settings,
-  Home,
   Calendar,
-  ArrowLeft,
   LogOut,
   User
 } from "lucide-react"
@@ -31,11 +26,6 @@ import { Button } from "@/components/ui/button"
 import logo from '@/assets/Marloy.png' 
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
   {
     title: "Clientes",
     url: "/clientes",
@@ -65,19 +55,6 @@ const menuItems = [
     title: "Mantenimientos",
     url: "/mantenimientos",
     icon: Calendar,
-  },
-  {
-    title: "Reportes",
-    url: "/reportes",
-    icon: BarChart3,
-  },
-]
-
-const adminItems = [
-  {
-    title: "Configuración",
-    url: "/configuracion",
-    icon: Settings,
   },
 ]
 
@@ -123,24 +100,6 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="hover:bg-coffee-100 hover:text-coffee-800">
-                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-coffee-700 font-medium">Administración</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="hover:bg-coffee-100 hover:text-coffee-800">
                     <Link to={item.url} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">

@@ -43,7 +43,7 @@ export default function Login() {
     try {
       const success = await login(form.nombre, form.contrasenia)
       if (success) {
-        navigate('/dashboard')
+        navigate('/clientes')
       } else {
         setError('Credenciales incorrectas. Verifique su usuario y contraseña.')
       }
