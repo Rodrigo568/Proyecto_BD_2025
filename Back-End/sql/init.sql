@@ -59,9 +59,12 @@ CREATE TABLE tecnicos (
 
 CREATE TABLE mantenimientos (
     id_mantenimiento INTEGER PRIMARY KEY AUTO_INCREMENT,
-    fecha DATETIME,
+    id_maquina INTEGER,
     id_tecnico INTEGER,
+    tipo VARCHAR(50),
+    fecha DATETIME,
     observaciones VARCHAR(200),
+    FOREIGN KEY (id_maquina) REFERENCES maquinas(id_maquina),
     FOREIGN KEY (id_tecnico) REFERENCES tecnicos(id_tecnico)
 );
 
