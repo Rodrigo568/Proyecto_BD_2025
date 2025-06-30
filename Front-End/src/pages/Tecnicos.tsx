@@ -1,98 +1,80 @@
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Plus, Search, Edit, Wrench, Phone, Mail, Calendar } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Plus, Edit } from "lucide-react"
+import api from "@/lib/api"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
-const mockTecnicos = [
-  {
-    id: 1,
-    nombre: "Juan Carlos Mendez",
-    telefono: "+54 11 5555-1111",
-    email: "jmendez@cafesmarloy.com",
-    especialidad: "Mantenimiento Preventivo",
-    zona: "CABA y GBA Norte",
-    mantenimientosRealizados: 45,
-    estado: "Disponible",
-    ultimoMantenimiento: "2024-01-25"
-  },
-  {
-    id: 2,
-    nombre: "María Elena Vásquez",
-    telefono: "+54 11 5555-2222",
-    email: "mvasquez@cafesmarloy.com",
-    especialidad: "Reparaciones Urgentes",
-    zona: "CABA y GBA Sur",
-    mantenimientosRealizados: 38,
-    estado: "En Servicio",
-    ultimoMantenimiento: "2024-01-26"
-  },
-  {
-    id: 3,
-    nombre: "Roberto Silva",
-    telefono: "+54 341 5555-3333",
-    email: "rsilva@cafesmarloy.com",
-    especialidad: "Instalación y Configuración",
-    zona: "Rosario y Alrededores",
-    mantenimientosRealizados: 29,
-    estado: "Disponible",
-    ultimoMantenimiento: "2024-01-24"
-  },
-  {
-    id: 4,
-    nombre: "Ana Beatriz Torres",
-    telefono: "+54 351 5555-4444",
-    email: "atorres@cafesmarloy.com",
-    especialidad: "Mantenimiento Preventivo",
-    zona: "Córdoba Capital",
-    mantenimientosRealizados: 52,
-    estado: "Disponible",
-    ultimoMantenimiento: "2024-01-23"
-  },
-  {
-    id: 5,
-    nombre: "Diego Ramírez",
-    telefono: "+54 261 5555-5555",
-    email: "dramirez@cafesmarloy.com",
-    especialidad: "Reparaciones Complejas",
-    zona: "Mendoza y San Juan",
-    mantenimientosRealizados: 31,
-    estado: "De Vacaciones",
-    ultimoMantenimiento: "2024-01-15"
-  }
-]
+interface Tecnico {
+  id_tecnico: number
+  nombre: string
+  tipo_visita: string
+  id_cliente: number
+}
 
 export default function Tecnicos() {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [tecnicos, setTecnicos] = useState<Tecnico[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [form, setForm] = useState({ nombre: "", tipo_visita: "", id_cliente: 1 })
+  const [editId, setEditId] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const filteredTecnicos = mockTecnicos.filter(tecnico =>
-    tecnico.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tecnico.especialidad.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tecnico.zona.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  useEffect(() => {
+    api.get("/tecnicos")
+      .then(res => {
+        console.log("✅ Técnicos cargados:", res.data)
+        setTecnicos(res.data)
+      })
+      .catch(err => {
+        console.error("❌ Error al cargar técnicos:", err)
+        setTecnicos([])
+      })
+  }, [])
 
-  const getEstadoBadgeColor = (estado: string) => {
-    switch (estado) {
-      case "Disponible":
-        return "bg-green-100 text-green-800 border-green-300"
-      case "En Servicio":
-        return "bg-blue-100 text-blue-800 border-blue-300"
-      case "De Vacaciones":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300"
-      case "No Disponible":
-        return "bg-red-100 text-red-800 border-red-300"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-300"
+  const handleOpen = () => {
+    setForm({ nombre: "", tipo_visita: "", id_cliente: 1 })
+    setEditId(null)
+    setModalOpen(true)
+  }
+
+  const handleEdit = (tecnico: Tecnico) => {
+    setForm({ nombre: tecnico.nombre, tipo_visita: tecnico.tipo_visita, id_cliente: tecnico.id_cliente })
+    setEditId(tecnico.id_tecnico)
+    setModalOpen(true)
+  }
+
+  const handleClose = () => {
+    setModalOpen(false)
+    setForm({ nombre: "", tipo_visita: "", id_cliente: 1 })
+    setEditId(null)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setForm({
+      ...form,
+      [name]: name === "id_cliente" ? Number(value) : value
+    })
+  }
+
+  const handleSubmit = async () => {
+    setLoading(true)
+    try {
+      if (editId !== null) {
+        const res = await api.put(`/tecnicos/${editId}`, form)
+        setTecnicos(prev => prev.map(t => t.id_tecnico === editId ? res.data : t))
+      } else {
+        const res = await api.post("/tecnicos", form)
+        setTecnicos(prev => [...prev, res.data])
+      }
+      handleClose()
+    } catch (err) {
+      alert("❌ Error al guardar técnico")
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -101,30 +83,14 @@ export default function Tecnicos() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-coffee-800">Gestión de Técnicos</h1>
-          <p className="text-coffee-600 mt-1">Administra el equipo técnico de mantenimiento</p>
+          <p className="text-coffee-600 mt-1">Administra tus técnicos registrados</p>
         </div>
-        <Button className="bg-coffee-600 hover:bg-coffee-700 text-white">
+        <Button className="bg-coffee-600 text-white hover:bg-coffee-700" onClick={handleOpen}>
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Técnico
         </Button>
       </div>
 
-      {/* Buscador */}
-      <Card className="bg-white border-coffee-200">
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-coffee-400 h-4 w-4" />
-            <Input
-              placeholder="Buscar técnicos por nombre, especialidad o zona..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-coffee-200 focus:border-coffee-400"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tabla de técnicos */}
       <Card className="bg-white border-coffee-200">
         <CardHeader>
           <CardTitle className="text-coffee-800">Lista de Técnicos</CardTitle>
@@ -133,67 +99,24 @@ export default function Tecnicos() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-coffee-700">Técnico</TableHead>
-                <TableHead className="text-coffee-700">Contacto</TableHead>
-                <TableHead className="text-coffee-700">Especialidad & Zona</TableHead>
-                <TableHead className="text-coffee-700">Rendimiento</TableHead>
-                <TableHead className="text-coffee-700">Estado</TableHead>
+                <TableHead className="text-coffee-700">Nombre</TableHead>
+                <TableHead className="text-coffee-700">Tipo de Visita</TableHead>
+                <TableHead className="text-coffee-700">ID Cliente</TableHead>
                 <TableHead className="text-coffee-700">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTecnicos.map((tecnico) => (
-                <TableRow key={tecnico.id} className="hover:bg-coffee-50">
+              {tecnicos.map(tecnico => (
+                <TableRow key={tecnico.id_tecnico} className="hover:bg-coffee-50">
+                  <TableCell>{tecnico.nombre}</TableCell>
+                  <TableCell>{tecnico.tipo_visita}</TableCell>
+                  <TableCell>{tecnico.id_cliente}</TableCell>
                   <TableCell>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Wrench className="h-4 w-4 text-coffee-600" />
-                        <span className="font-medium text-coffee-800">{tecnico.nombre}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm text-coffee-600">
-                        <Phone className="h-3 w-3 mr-2" />
-                        {tecnico.telefono}
-                      </div>
-                      <div className="flex items-center text-sm text-coffee-600">
-                        <Mail className="h-3 w-3 mr-2" />
-                        {tecnico.email}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium text-coffee-800">{tecnico.especialidad}</div>
-                      <div className="text-sm text-coffee-600">{tecnico.zona}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium text-coffee-800">
-                        {tecnico.mantenimientosRealizados} servicios
-                      </div>
-                      <div className="flex items-center text-sm text-coffee-600">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        Último: {new Date(tecnico.ultimoMantenimiento).toLocaleDateString('es-AR')}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
+                    <Button
                       variant="outline"
-                      className={getEstadoBadgeColor(tecnico.estado)}
-                    >
-                      {tecnico.estado}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="outline" 
                       size="sm"
                       className="border-coffee-300 text-coffee-700 hover:bg-coffee-50"
+                      onClick={() => handleEdit(tecnico)}
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
@@ -205,6 +128,47 @@ export default function Tecnicos() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal */}
+      <Dialog open={modalOpen} onOpenChange={handleClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editId ? "Editar Técnico" : "Nuevo Técnico"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              name="nombre"
+              placeholder="Nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="tipo_visita"
+              placeholder="Tipo de Visita"
+              value={form.tipo_visita}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="id_cliente"
+              placeholder="ID del Cliente"
+              type="number"
+              value={form.id_cliente}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <DialogFooter>
+            <Button onClick={handleSubmit} disabled={loading} className="bg-coffee-600 text-white">
+              {loading ? "Guardando..." : "Guardar"}
+            </Button>
+            <Button variant="outline" onClick={handleClose} disabled={loading}>
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
