@@ -2,15 +2,10 @@
 import { 
   Coffee,
   Users,
-  Cog,
   Package,
   Truck,
   Wrench,
-  BarChart3,
-  Settings,
-  Home,
   Calendar,
-  ArrowLeft,
   LogOut,
   User
 } from "lucide-react"
@@ -31,11 +26,6 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
   {
     title: "Clientes",
     url: "/clientes",
@@ -66,19 +56,6 @@ const menuItems = [
     url: "/mantenimientos",
     icon: Calendar,
   },
-  {
-    title: "Reportes",
-    url: "/reportes",
-    icon: BarChart3,
-  },
-]
-
-const adminItems = [
-  {
-    title: "Configuración",
-    url: "/configuracion",
-    icon: Settings,
-  },
 ]
 
 export function AppSidebar() {
@@ -101,16 +78,6 @@ export function AppSidebar() {
             <p className="text-sm text-coffee-600">Sistema Administrativo</p>
           </div>
         </div>
-        
-        {/* Back to Home button */}
-        <div className="mt-4">
-          <Link to="/">
-            <SidebarMenuButton className="w-full hover:bg-coffee-100 hover:text-coffee-800">
-              <ArrowLeft className="h-4 w-4" />
-              <span>Volver al Inicio</span>
-            </SidebarMenuButton>
-          </Link>
-        </div>
       </SidebarHeader>
       
       <SidebarContent>
@@ -119,24 +86,6 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="hover:bg-coffee-100 hover:text-coffee-800">
-                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-coffee-700 font-medium">Administración</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="hover:bg-coffee-100 hover:text-coffee-800">
                     <Link to={item.url} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">

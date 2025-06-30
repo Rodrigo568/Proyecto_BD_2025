@@ -8,17 +8,14 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
 import Maquinas from "./pages/Maquinas";
 import Insumos from "./pages/Insumos";
 import Proveedores from "./pages/Proveedores";
 import Tecnicos from "./pages/Tecnicos";
 import Mantenimientos from "./pages/Mantenimientos";
-import Reportes from "./pages/Reportes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,12 +50,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
-            {/* Protected routes */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <AdminLayout><Dashboard /></AdminLayout>
-              </ProtectedRoute>
-            } />
+            {/* Protected routes - redirect to clientes as main page */}
+            <Route path="/dashboard" element={<Navigate to="/clientes" replace />} />
             <Route path="/clientes" element={
               <ProtectedRoute>
                 <AdminLayout><Clientes /></AdminLayout>
@@ -87,11 +80,6 @@ const App = () => (
             <Route path="/mantenimientos" element={
               <ProtectedRoute adminOnly>
                 <AdminLayout><Mantenimientos /></AdminLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/reportes" element={
-              <ProtectedRoute adminOnly>
-                <AdminLayout><Reportes /></AdminLayout>
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

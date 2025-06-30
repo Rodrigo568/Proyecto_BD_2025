@@ -59,7 +59,7 @@ export default function Register() {
     try {
       const success = await register(form.nombre, form.contrasenia, form.cargo)
       if (success) {
-        navigate('/dashboard')
+        navigate('/clientes')
       } else {
         setError('Error al registrar usuario. El nombre de usuario puede estar en uso.')
       }
