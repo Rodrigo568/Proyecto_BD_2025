@@ -58,7 +58,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/maquinas" element={
-              <ProtectedRoute>
+              <ProtectedRoute adminOnly>
                 <AdminLayout><Maquinas /></AdminLayout>
               </ProtectedRoute>
             } />
@@ -68,7 +68,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/proveedores" element={
-              <ProtectedRoute>
+              <ProtectedRoute adminOnly>
                 <AdminLayout><Proveedores /></AdminLayout>
               </ProtectedRoute>
             } />
