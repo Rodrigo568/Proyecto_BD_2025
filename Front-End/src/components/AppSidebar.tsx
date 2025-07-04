@@ -53,6 +53,11 @@ const menuItems = [
     icon: Wrench,
   },
   {
+    title: "Consumos",
+    url: "/consumos",
+    icon: Coffee,
+  },
+  {
     title: "Mantenimientos",
     url: "/mantenimientos",
     icon: Calendar,

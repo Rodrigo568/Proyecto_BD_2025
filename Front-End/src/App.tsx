@@ -17,6 +17,7 @@ import Proveedores from "./pages/Proveedores";
 import Tecnicos from "./pages/Tecnicos";
 import Mantenimientos from "./pages/Mantenimientos";
 import NotFound from "./pages/NotFound";
+import Consumos from "./pages/Consumos";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,11 @@ const App = () => (
             <Route path="/tecnicos" element={
               <ProtectedRoute adminOnly>
                 <AdminLayout><Tecnicos /></AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/consumos" element={
+              <ProtectedRoute adminOnly>
+                <AdminLayout><Consumos /></AdminLayout>
               </ProtectedRoute>
             } />
             <Route path="/mantenimientos" element={

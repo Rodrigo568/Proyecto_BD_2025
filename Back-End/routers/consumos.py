@@ -5,7 +5,7 @@ from typing import List
 
 router = APIRouter()
 
-@router.get("/consumos", response_model=List[Consumo])
+@router.get("/", response_model=List[Consumo])
 def get_consumos():
     """Obtener todos los consumos"""
     connection = get_connection()
@@ -32,7 +32,7 @@ def get_consumos():
     finally:
         connection.close()
 
-@router.get("/consumos/{consumo_id}", response_model=Consumo)
+@router.get("/{consumo_id}", response_model=Consumo)
 def get_consumo(consumo_id: int):
     """Obtener un consumo por ID"""
     connection = get_connection()
@@ -59,7 +59,7 @@ def get_consumo(consumo_id: int):
     finally:
         connection.close()
 
-@router.post("/consumos", response_model=Consumo)
+@router.post("/", response_model=Consumo)
 def create_consumo(consumo: ConsumoCreate):
     """Crear un nuevo consumo"""
     connection = get_connection()
@@ -86,7 +86,7 @@ def create_consumo(consumo: ConsumoCreate):
     finally:
         connection.close()
 
-@router.put("/consumos/{consumo_id}", response_model=Consumo)
+@router.put("/{consumo_id}", response_model=Consumo)
 def update_consumo(consumo_id: int, consumo: ConsumoUpdate):
     """Actualizar un consumo"""
     connection = get_connection()
@@ -148,7 +148,7 @@ def update_consumo(consumo_id: int, consumo: ConsumoUpdate):
     finally:
         connection.close()
 
-@router.delete("/consumos/{consumo_id}")
+@router.delete("/{consumo_id}")
 def delete_consumo(consumo_id: int):
     """Eliminar un consumo"""
     connection = get_connection()
@@ -168,7 +168,7 @@ def delete_consumo(consumo_id: int):
     finally:
         connection.close()
 
-@router.get("/consumos/maquina/{maquina_id}", response_model=List[Consumo])
+@router.get("/maquina/{maquina_id}", response_model=List[Consumo])
 def get_consumos_by_maquina(maquina_id: int):
     """Obtener consumos por ID de máquina"""
     connection = get_connection()
