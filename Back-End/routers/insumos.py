@@ -53,14 +53,14 @@ def actualizar_insumo(id: int, insumo: InsumoBase):
         cursor = conn.cursor()
         cursor.execute(
             "UPDATE insumos SET tipo=%s, precio=%s, id_proveedor=%s WHERE id_insumo=%s",
-            (insumo.tipo, insumo.precio_unitario, insumo.id_proveedor, id)
+            (insumo.tipo, insumo.precio, insumo.id_proveedor, id)
         )
         conn.commit()
         if cursor.rowcount == 0:
             raise HTTPException(status_code=404, detail="Insumo no encontrado")
         return Insumo(id_insumo=id, **insumo.dict())
     except Exception as e:
-        print("❌ Error al actualizar insumo:", e)
+        print("❌ Error al actualizar insumo:", repr(e))
         raise HTTPException(status_code=500, detail="Error al actualizar insumo")
     finally:
         cursor.close()
